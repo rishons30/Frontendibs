@@ -422,7 +422,10 @@ const FlightMapWidget = ({ isDarkMode }) => {
                     position={currentPos}
                     icon={getAirplaneIcon(flight, heading)}
                     eventHandlers={{
-                      click: () => setSelectedFlight(flight),
+                      click: () =>
+                        { setSelectedFlight(flight),
+                          console.log('Clicked:', flight.flightNumber); // <-- Add this
+                        }
                     }}
                   >
                     <Popup className="w-64">

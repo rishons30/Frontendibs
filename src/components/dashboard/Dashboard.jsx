@@ -33,91 +33,56 @@ const Dashboard = () => {
 
   const GAP = 24;
   const sizeConfigs = {
-    small: { width: 300, height: 200, className: '300px' },
-    medium: { width: 600, height: 400, className: '600px' },
-    large: { width: 1200, height: 600, className: '1200px' },
+    small: { width: 300, height: 200 },
+    medium: { width: 600, height: 400 },
+    large: { width: 1200, height: 600 },
   };
 
-  const getContainerDimensions = () => {
-    let maxX = 0;
-    let maxY = 0;
-    widgets.forEach((widget) => {
-      const x = widget.x || 0;
-      const y = widget.y || 0;
-      const widgetWidth = sizeConfigs[widget.size || 'medium'].width;
-      const widgetHeight = widget.height || sizeConfigs[widget.size || 'medium'].height;
-      maxX = Math.max(maxX, x + widgetWidth);
-      maxY = Math.max(maxY, y + widgetHeight);
+  const layoutWidgets = (widgetsToLayout, containerWidth = window.innerWidth) => {
+    let layout = [];
+    let rows = [[]];
+    let currentRowWidth = 0;
+    let currentY = 0;
+
+    widgetsToLayout.forEach(widget => {
+      const width = widget.width || sizeConfigs[widget.size || 'medium'].width;
+      const height = widget.height || sizeConfigs[widget.size || 'medium'].height;
+      if (currentRowWidth + width + GAP > containerWidth) {
+        currentY += Math.max(...rows[rows.length - 1].map(w => w.height)) + GAP;
+        rows.push([]);
+        currentRowWidth = 0;
+      }
+      const x = currentRowWidth;
+      layout.push({ ...widget, x, y: currentY, width, height });
+      rows[rows.length - 1].push({ ...widget, width, height });
+      currentRowWidth += width + GAP;
     });
-    return { minWidth: maxX + GAP, minHeight: maxY + GAP };
+
+    return layout;
   };
 
-  const { minWidth, minHeight } = getContainerDimensions();
+  const handleResize = (id, newWidth, newHeight) => {
+    setWidgets(prev => {
+      const updated = prev.map(w => w.id === id ? { ...w, width: newWidth, height: newHeight } : w);
+      return layoutWidgets(updated);
+    });
+  };
 
   const calculateNextPosition = () => {
-    if (widgets.length === 0) return { x: 0, y: 0 };
-    let currentX = 0;
-    let currentY = 0;
-    let maxY = 0;
-    let widgetsInRow = 0;
+    const layout = layoutWidgets(widgets);
+    const last = layout[layout.length - 1];
+    if (!last) return { x: 0, y: 0 };
 
-    widgets.forEach((widget) => {
-      const x = widget.x || 0;
-      const y = widget.y || 0;
-      const widgetHeight = widget.height || sizeConfigs[widget.size || 'medium'].height;
-      maxY = Math.max(maxY, y + widgetHeight);
+    const width = sizeConfigs.medium.width;
+    const height = sizeConfigs.medium.height;
 
-      if (y === currentY) {
-        widgetsInRow++;
-        currentX = x + (sizeConfigs[widget.size || 'medium'].width + GAP);
-      } else if (y > currentY) {
-        currentY = y;
-        currentX = x + (sizeConfigs[widget.size || 'medium'].width + GAP);
-        widgetsInRow = 1;
-      }
-    });
-
-    if (widgetsInRow >= 3) {
-      currentX = 0;
-      currentY = maxY + GAP;
+    let nextX = last.x + last.width + GAP;
+    let nextY = last.y;
+    if (nextX + width > window.innerWidth) {
+      nextX = 0;
+      nextY = last.y + last.height + GAP;
     }
-
-    return { x: currentX, y: currentY };
-  };
-
-  const handleResize = (id, newHeight) => {
-    setWidgets((prev) => {
-      const updatedWidgets = prev.map((widget) =>
-        widget.id === id ? { ...widget, height: newHeight } : widget
-      );
-
-      const rows = [];
-      updatedWidgets.forEach((widget) => {
-        const y = widget.y || 0;
-        if (!rows.find((row) => row.y === y)) {
-          rows.push({ y, widgets: [] });
-        }
-        rows.find((row) => row.y === y).widgets.push(widget);
-      });
-
-      rows.sort((a, b) => a.y - b.y);
-      rows.forEach((row) => {
-        row.maxHeight = Math.max(
-          ...row.widgets.map((w) => w.height || sizeConfigs[w.size || 'medium'].height)
-        );
-      });
-
-      let currentY = 0;
-      rows.forEach((row) => {
-        row.newY = currentY;
-        currentY += row.maxHeight + GAP;
-      });
-
-      return updatedWidgets.map((widget) => {
-        const row = rows.find((r) => r.y === (widget.y || 0));
-        return { ...widget, y: row.newY };
-      });
-    });
+    return { x: nextX, y: nextY };
   };
 
   const addWidget = (type) => {
@@ -128,41 +93,36 @@ const Dashboard = () => {
       size: 'medium',
       x,
       y,
+      width: sizeConfigs.medium.width,
       height: sizeConfigs.medium.height,
     };
-    setWidgets((prev) => [...prev, newWidget]);
+    setWidgets(prev => layoutWidgets([...prev, newWidget]));
     setIsAddWidgetOpen(false);
   };
 
   const removeWidget = (id) => {
-    setWidgets((prev) => {
-      const updated = prev.filter((widget) => widget.id !== id);
-      const sorted = updated.sort((a, b) => a.y - b.y || a.x - b.x);
-
-      let currentX = 0;
-      let currentY = 0;
-      let widgetsInRow = 0;
-      let maxY = 0;
-
-      return sorted.map((widget) => {
-        if (widgetsInRow >= 3) {
-          currentX = 0;
-          currentY = maxY + GAP;
-          widgetsInRow = 0;
-        }
-        const widgetHeight = widget.height || sizeConfigs[widget.size || 'medium'].height;
-        const newWidget = {
-          ...widget,
-          x: currentX,
-          y: currentY,
-        };
-        currentX += sizeConfigs[widget.size || 'medium'].width + GAP;
-        widgetsInRow++;
-        maxY = Math.max(maxY, currentY + widgetHeight);
-        return newWidget;
-      });
-    });
+    setWidgets(prev => layoutWidgets(prev.filter(w => w.id !== id)));
   };
+
+  const getContainerDimensions = () => {
+    let maxX = 0;
+    let maxY = 0;
+    widgets.forEach(({ x, y, width, height }) => {
+      maxX = Math.max(maxX, x + width);
+      maxY = Math.max(maxY, y + height);
+    });
+    return { minWidth: maxX + GAP, minHeight: maxY + GAP };
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWidgets(prev => layoutWidgets(prev));
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const { minWidth, minHeight } = getContainerDimensions();
 
   const summaryData = {
     totalFlights: 128,
@@ -194,14 +154,13 @@ const Dashboard = () => {
     { type: 'mapView', title: 'Live Map View' },
   ];
 
-  const renderWidget = ({ id, type, size, x = 0, y = 0, height }) => {
-    const { className: width } = sizeConfigs[size] || sizeConfigs.medium;
+  const renderWidget = ({ id, type, x = 0, y = 0, height, width }) => {
     const commonProps = {
       key: id,
       onRemove: () => removeWidget(id),
-      onResizeStop: (newHeight) => handleResize(id, newHeight),
-      height: `${height || sizeConfigs[size || 'medium'].height}px`,
-      width,
+      onResizeStop: (newHeight, newWidth) => handleResize(id, newWidth, newHeight),
+      height: `${height}px`,
+      width: `${width}px`,
       x,
       y,
     };
@@ -244,8 +203,8 @@ const Dashboard = () => {
         </header>
       </div>
 
-      <div className="relative flex-1 p-4 overflow-x-auto">
-        <div ref={containerRef} className="relative w-full" style={{ minWidth: `${minWidth}px`, minHeight: `${minHeight}px` }}>
+      <div className="relative flex-1 p-4 overflow-x-auto overflow-y-auto">
+        <div ref={containerRef} className="relative" style={{ minWidth: `${minWidth}px`, minHeight: `${minHeight}px` }}>
           {widgets.length === 0 ? (
             <div className="w-full min-h-[300px] flex items-center justify-center">
               <p className="text-gray-500 dark:text-gray-400">No widgets added. Click the + button to add a widget.</p>

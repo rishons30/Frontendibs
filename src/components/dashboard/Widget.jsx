@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Rnd } from 'react-rnd';
 import { X } from 'lucide-react';
 
-const Widget = ({ title, children, onRemove, onResizeStop, height = '400px', width = '600px', x = 0, y = 0 }) => {
+const Widget = ({ title, children, onRemove, onResizeStop, height = 400, width = 600, x = 0, y = 0 }) => {
   const [editableTitle, setEditableTitle] = useState(title);
   const [isEditing, setIsEditing] = useState(false);
   const [size, setSize] = useState({
@@ -24,12 +24,16 @@ const Widget = ({ title, children, onRemove, onResizeStop, height = '400px', wid
           height: ref.offsetHeight,
         };
         setSize(newSize);
-        if (onResizeStop) onResizeStop(newSize.height);
+        if (onResizeStop) onResizeStop(newSize.height, newSize.width); // Pass both height and width
       }}
       minWidth={300}
       minHeight={200}
       className="relative rounded-lg shadow dark:bg-gray-800 bg-white"
-      enableResizing={{ bottom: true }}
+      enableResizing={{
+        bottom: true,
+        right: true, // Enable horizontal resizing from the right
+        bottomRight: true, // Enable diagonal resizing (optional, for bottom-right corner)
+      }}
       disableDragging={true}
     >
       {onRemove && (
