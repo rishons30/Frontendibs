@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, Filter, ChevronDown, Moon, Sun, X } from 'lucide-react';
+import { Search, Filter, ChevronDown, X, PlaneLanding, PlaneTakeoff } from 'lucide-react';
 
 const airports = [
   { code: 'JFK', name: 'John F. Kennedy International' },
@@ -28,24 +28,19 @@ const flightData = [
   { id: 10, flight: 'QA1010', registration: 'N132AA', origin: 'DFW', destination: 'LAX', eventTime: new Date(2025, 0, 1, 22, 0), crew: 'Crew 8', status: 'On Time', event: 'Landing' }
 ];
 
-function FlightSchedule() {
+function FlightSchedule({ isDarkMode }) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [dateRange, setDateRange] = useState('today');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [selectedOrigins, setSelectedOrigins] = useState([]);
   const [selectedDestinations, setSelectedDestinations] = useState([]);
   const [selectedAircraftTypes, setSelectedAircraftTypes] = useState([]);
   const [filteredFlights, setFilteredFlights] = useState(flightData);
   const [selectedFlight, setSelectedFlight] = useState(null);
 
-  // Toggle dark mode
+  // Log isDarkMode prop
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    console.log('FlightSchedule: isDarkMode prop', isDarkMode);
   }, [isDarkMode]);
 
   // Handle filtering
@@ -59,6 +54,7 @@ function FlightSchedule() {
       (selectedAircraftTypes.length === 0 || selectedAircraftTypes.includes(flight.registration.slice(0, 4)))
     );
     setFilteredFlights(filtered);
+    console.log('FlightSchedule: Filtered flights', filtered);
   }, [searchQuery, selectedOrigins, selectedDestinations, selectedAircraftTypes]);
 
   const handleOriginChange = (code) => {
@@ -88,14 +84,21 @@ function FlightSchedule() {
   const handleFlightClick = (e, flight) => {
     e.preventDefault();
     setSelectedFlight(flight);
+    console.log('FlightSchedule: Selected flight', flight);
   };
 
   const closeModal = () => {
     setSelectedFlight(null);
+    console.log('FlightSchedule: Modal closed');
   };
 
+  console.log('FlightSchedule rendering', { isDarkMode, filteredFlights });
+
   return (
-    <div className={`rounded-lg shadow ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} transition-all duration-300`}>
+    <div
+      className={`rounded-lg shadow h-full w-full overflow-hidden${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} transition-all duration-300`}
+      data-theme={isDarkMode ? 'dark' : 'light'}
+    >
       <div className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} transition-all duration-300`}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
           {/* Search and Filters */}
@@ -221,9 +224,8 @@ function FlightSchedule() {
             </div>
           </div>
           
-          {/* Date range control and dark mode toggle */}
+          {/* Date range control */}
           <div className="flex items-center space-x-4 w-full sm:w-auto">
-         
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
@@ -242,26 +244,26 @@ function FlightSchedule() {
         </div>
       </div>
       
-      <div className="p-4">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y">
+      <div className="p-2 overflow-x-auto box-border">
+          <table className="min-w-full w-full divide-y">
             <thead className={`${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} transition-all duration-300`}>
               <tr>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Flight</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Aircraft Registration</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Event Time</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Crew</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Status</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Flight</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Aircraft Registration</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Event Time</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Crew</th>
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Status</th>
               </tr>
             </thead>
             <tbody className={`${isDarkMode ? 'bg-gray-800 divide-gray-700' : 'bg-white divide-gray-200'} transition-all duration-300`}>
               {filteredFlights.map((flight) => (
                 <tr key={flight.id} className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-all duration-300`}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex items-center">
-                    <i
-                      className={`fas ${flight.event === 'Landing' ? 'fa-plane-arrival' : 'fa-plane-departure'} mr-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-700'} transition-all duration-300`}
-                      aria-hidden="true"
-                    ></i>
+                    {flight.event === 'Landing' ? (
+                      <PlaneLanding size={16} className={`${isDarkMode ? 'text-gray-400' : 'text-gray-700'} mr-2 transition-all duration-300`} />
+                    ) : (
+                      <PlaneTakeoff size={16} className={`${isDarkMode ? 'text-gray-400' : 'text-gray-700'} mr-2 transition-all duration-300`} />
+                    )}
                     <a
                       href="#"
                       onClick={(e) => handleFlightClick(e, flight)}
@@ -298,7 +300,7 @@ function FlightSchedule() {
               ))}
             </tbody>
           </table>
-        </div>
+       
       </div>
 
       {/* Flight Modal */}

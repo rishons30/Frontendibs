@@ -1,4 +1,3 @@
-// File: src/components/dashboard/Dashboard.jsx
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { ThemeContext } from '../../ThemeContext';
 import SummaryCard from './SummaryCard';
@@ -7,6 +6,7 @@ import FlightStatusChart from './FlightStatusChart';
 import AircraftStatusChart from './AircraftStatusChart';
 import FlightSchedule from '../flights/Flightupd';
 import MapView from './Flightmap';
+import MapModal from './Mapmodal';
 import { Plane, Users, AlertTriangle, Plus, X } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import Widget from './Widget';
@@ -26,6 +26,12 @@ const Dashboard = () => {
   });
 
   const [isAddWidgetOpen, setIsAddWidgetOpen] = useState(false);
+  const [selectedFlight, setSelectedFlight] = useState(null);
+
+  // Log isDarkMode
+  useEffect(() => {
+    console.log('Dashboard: isDarkMode from ThemeContext', isDarkMode);
+  }, [isDarkMode]);
 
   useEffect(() => {
     localStorage.setItem('dashboardWidgets', JSON.stringify(widgets));
@@ -98,10 +104,12 @@ const Dashboard = () => {
     };
     setWidgets(prev => layoutWidgets([...prev, newWidget]));
     setIsAddWidgetOpen(false);
+    console.log('Dashboard: Added widget', { type, isDarkMode });
   };
 
   const removeWidget = (id) => {
     setWidgets(prev => layoutWidgets(prev.filter(w => w.id !== id)));
+    console.log('Dashboard: Removed widget', { id });
   };
 
   const getContainerDimensions = () => {
@@ -167,6 +175,7 @@ const Dashboard = () => {
 
     switch (type) {
       case 'summaryCards':
+        console.log('Dashboard: Rendering summaryCards', { isDarkMode });
         return (
           <Widget title="Summary Overview" {...commonProps}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 h-full overflow-auto">
@@ -178,22 +187,41 @@ const Dashboard = () => {
           </Widget>
         );
       case 'flightStatusChart':
+        console.log('Dashboard: Rendering flightStatusChart', { isDarkMode });
         return <Widget title="Flight Status" {...commonProps}><FlightStatusChart isDarkMode={isDarkMode} /></Widget>;
       case 'aircraftStatusChart':
+        console.log('Dashboard: Rendering aircraftStatusChart', { isDarkMode });
         return <Widget title="Aircraft Status" {...commonProps}><AircraftStatusChart isDarkMode={isDarkMode} /></Widget>;
       case 'alerts':
+        console.log('Dashboard: Rendering alerts', { isDarkMode });
         return <Widget title="Recent Alerts" {...commonProps}><AlertsList alerts={alerts} isDarkMode={isDarkMode} /></Widget>;
       case 'flightSchedule':
-        return <Widget title="Flight Schedule" {...commonProps}><FlightSchedule isDarkMode={isDarkMode} /></Widget>;
+        console.log('Dashboard: Rendering flightSchedule', { isDarkMode });
+        return (
+          <Widget title="Flight Schedule" {...commonProps}>
+            <FlightSchedule isDarkMode={isDarkMode} />
+          </Widget>
+        );
       case 'mapView':
-        return <Widget title="Live Flight Map" {...commonProps}><MapView isDarkMode={isDarkMode} /></Widget>;
+        console.log('Dashboard: Rendering mapView', { isDarkMode });
+        return (
+          <Widget title="Live Flight Map" {...commonProps}>
+            <div style={{ height: '100%', width: '100%', minHeight: '400px', position: 'relative' }}>
+              <MapView isDarkMode={isDarkMode} setSelectedFlight={setSelectedFlight} />
+            </div>
+          </Widget>
+        );
       default:
+        console.log('Dashboard: Rendering unknown widget', { type, isDarkMode });
         return <Widget title="Unknown Widget" {...commonProps}><div className="text-red-500">Invalid widget type: {type}</div></Widget>;
     }
   };
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 transition-all duration-300 flex flex-col min-h-screen">
+    <div
+      className={`bg-gray-100 dark:bg-gray-900 transition-all duration-300 flex flex-col min-h-screen`}
+      data-theme={isDarkMode ? 'dark' : 'light'}
+    >
       <div className="px-4 sm:px-6 lg:px-8 pt-16">
         <header className="py-4 flex justify-between items-center">
           <div>
@@ -241,6 +269,10 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {selectedFlight && (
+        <MapModal onClose={() => setSelectedFlight(null)} flight={selectedFlight} />
       )}
     </div>
   );

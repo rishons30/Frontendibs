@@ -202,7 +202,7 @@ const ZoomToFlight = ({ flight }) => {
 const MapControls = ({ onReset, toggleLayers }) => {
   const map = useMap();
   return (
-    <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
+    <div className="absolute top-4 right-2 z-[1000] flex flex-col gap-2">
       <button
         onClick={() => {
           map.setView([0, 0], 2);
@@ -507,7 +507,7 @@ const FlightMapWidget = ({ isDarkMode }) => {
           {selectedFlight && <ZoomToFlight flight={selectedFlight} />}
         </MapContainer>
       </div>
-      <div className="w-64 p-4 bg-gray-100 dark:bg-gray-800 overflow-auto">
+      <div className="w-64 p-3 bg-gray-100 dark:bg-gray-800 overflow-auto">
         <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
           Flight Dashboard
         </h3>
