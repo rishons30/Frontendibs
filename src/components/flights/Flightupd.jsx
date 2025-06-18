@@ -244,21 +244,21 @@ function FlightSchedule({ isDarkMode }) {
         </div>
       </div>
       
-      <div className="p-2 overflow-x-auto box-border">
-          <table className="min-w-full w-full divide-y">
+      <div className=" overflow-x-auto box-border  ">
+          <table className="min-w-full w-full divide-y ">
             <thead className={`${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} transition-all duration-300`}>
               <tr>
                 <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Flight</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Aircraft Registration</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Event Time</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Crew</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Status</th>
+                <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Aircraft Registration</th>
+                <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Event Time</th>
+                <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Crew</th>
+                <th className={`px-3 py-3 text-left text-xs font-medium uppercase tracking-wider max-w-xs break-words ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>Status</th>
               </tr>
             </thead>
             <tbody className={`${isDarkMode ? 'bg-gray-800 divide-gray-700' : 'bg-white divide-gray-200'} transition-all duration-300`}>
               {filteredFlights.map((flight) => (
                 <tr key={flight.id} className={`${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-all duration-300`}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex items-center">
+                  <td className="px-3 py-4 whitespace-nowrap text-sm font-medium flex items-center">
                     {flight.event === 'Landing' ? (
                       <PlaneLanding size={16} className={`${isDarkMode ? 'text-gray-400' : 'text-gray-700'} mr-2 transition-all duration-300`} />
                     ) : (
@@ -272,20 +272,20 @@ function FlightSchedule({ isDarkMode }) {
                       {flight.flight} {flight.origin} → {flight.destination}
                     </a>
                   </td>
-                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>
+                  <td className={`px-5 py-2 whitespace-nowrap text-sm  ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>
                     {flight.registration}
                   </td>
-                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>
+                  <td className={`px-3 py-2 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>
                     {flight.eventTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </td>
-                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>
+                  <td className={`px-3 py-2 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} transition-all duration-300`}>
                     {flight.crew === 'Unassigned' ? (
                       <span className="text-red-500">{flight.crew}</span>
                     ) : (
                       flight.crew
                     )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full transition-all duration-300 ${
                       flight.status === 'Delayed' ? 
                         isDarkMode ? 'bg-red-600 text-white' : 'bg-red-100 text-red-800' :
