@@ -96,7 +96,7 @@ function FlightSchedule({ isDarkMode }) {
 
   return (
     <div
-      className={`rounded-lg shadow h-full w-full overflow-hidden${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} transition-all duration-300`}
+      className={`rounded-sg shadow  w-full overflow-hidden${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} transition-all duration-300`}
       data-theme={isDarkMode ? 'dark' : 'light'}
     >
       <div className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} transition-all duration-300`}>
@@ -229,7 +229,7 @@ function FlightSchedule({ isDarkMode }) {
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className={`block rounded-md border-0 py-1.5 pl-3 pr-10 ring-1 ring-inset sm:text-sm sm:leading-6 ${
+              className={`block rounded-md border-0 py-1 pl-3 pr-10 ring-1 ring-inset sm:text-sm sm:leading-6 ${
                 isDarkMode 
                   ? 'bg-gray-700 text-white ring-gray-600 focus:ring-blue-500' 
                   : 'bg-white text-gray-900 ring-gray-300 focus:ring-blue-600'
@@ -244,7 +244,7 @@ function FlightSchedule({ isDarkMode }) {
         </div>
       </div>
       
-      <div className=" overflow-x-auto box-border  ">
+      <div className=" overflow-x-auto box-border  h-full">
           <table className="min-w-full w-full divide-y ">
             <thead className={`${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} transition-all duration-300`}>
               <tr>

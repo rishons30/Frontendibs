@@ -24,17 +24,19 @@ const Widget = ({ title, children, onRemove, onResizeStop, height = 400, width =
           height: ref.offsetHeight,
         };
         setSize(newSize);
-        if (onResizeStop) onResizeStop(newSize.height, newSize.width); // Pass both height and width
+        if (onResizeStop) onResizeStop(newSize.height, newSize.width);
       }}
       minWidth={300}
-      minHeight={200}
-      className="relative rounded-lg shadow dark:bg-gray-800 bg-white"
+      minHeight={300}
+      className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden flex flex-col"
+      disableDragging={true}
       enableResizing={{
         bottom: true,
-        right: true, // Enable horizontal resizing from the right
-        bottomRight: true, // Enable diagonal resizing (optional, for bottom-right corner)
+        right: true,
+        bottomRight: true,
       }}
-      disableDragging={true}
+      resizeGrid={[1, 1]} // 👈 Allow pixel-level resizing
+
     >
       {onRemove && (
         <button
@@ -44,11 +46,12 @@ const Widget = ({ title, children, onRemove, onResizeStop, height = 400, width =
           <X size={16} />
         </button>
       )}
+
       {title && (
-        <div className="p-4 border-b dark:border-gray-700 border-gray-200 cursor-move">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           {isEditing ? (
             <input
-              className="text-lg font-medium bg-transparent outline-none border-b border-gray-400 dark:border-gray-600"
+              className="text-lg font-medium bg-transparent outline-none border-b border-gray-400 dark:border-gray-600 w-full"
               value={editableTitle}
               onChange={handleTitleChange}
               onBlur={handleBlur}
@@ -65,7 +68,10 @@ const Widget = ({ title, children, onRemove, onResizeStop, height = 400, width =
           )}
         </div>
       )}
-      <div className="p-4 h-[calc(100%-3rem)] overflow-auto">{children}</div>
+
+      {/* ✅ Scrollable child container takes remaining height */}
+    <div className="p-4 h-[calc(100%-3rem)] overflow-y-auto overflow-x-hidden">{children}</div>
+
     </Rnd>
   );
 };
