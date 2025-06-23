@@ -10,6 +10,37 @@ import MapModal from './Mapmodal';
 import { Plane, Users, AlertTriangle, Plus, X } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import Widget from './Widget';
+import ColumnSelectorWidget from './ColumnSelectorWidget';
+
+const allColumns = [
+  'Flight ID', 'STD', 'STA', 'DEP', 'ARR',
+  'Status', 'Aircraft Reg', 'Dep Stand', 'Gate'
+];
+
+const flightData = [
+  {
+    'Flight ID': 'AA100',
+    STD: '10:00',
+    STA: '14:00',
+    DEP: '10:10',
+    ARR: '14:05',
+    Status: 'Delayed',
+    'Aircraft Reg': 'N123AA',
+    'Dep Stand': 'B4',
+    Gate: '12A'
+  },
+  {
+    'Flight ID': 'DL202',
+    STD: '11:30',
+    STA: '15:20',
+    DEP: '11:40',
+    ARR: '15:35',
+    Status: 'On Time',
+    'Aircraft Reg': 'N456DL',
+    'Dep Stand': 'C2',
+    Gate: '7B'
+  }
+];
 
 const Dashboard = () => {
   const { isDarkMode } = useContext(ThemeContext);
@@ -27,11 +58,7 @@ const Dashboard = () => {
 
   const [isAddWidgetOpen, setIsAddWidgetOpen] = useState(false);
   const [selectedFlight, setSelectedFlight] = useState(null);
-
-  // Log isDarkMode
-  useEffect(() => {
-    console.log('Dashboard: isDarkMode from ThemeContext', isDarkMode);
-  }, [isDarkMode]);
+  const [selectedColumns, setSelectedColumns] = useState(allColumns);
 
   useEffect(() => {
     localStorage.setItem('dashboardWidgets', JSON.stringify(widgets));
@@ -104,12 +131,10 @@ const Dashboard = () => {
     };
     setWidgets(prev => layoutWidgets([...prev, newWidget]));
     setIsAddWidgetOpen(false);
-    console.log('Dashboard: Added widget', { type, isDarkMode });
   };
 
   const removeWidget = (id) => {
     setWidgets(prev => layoutWidgets(prev.filter(w => w.id !== id)));
-    console.log('Dashboard: Removed widget', { id });
   };
 
   const getContainerDimensions = () => {
@@ -160,6 +185,7 @@ const Dashboard = () => {
     { type: 'alerts', title: 'Recent Alerts' },
     { type: 'flightSchedule', title: 'Flight Schedule' },
     { type: 'mapView', title: 'Live Map View' },
+    { type: 'columnSelector', title: 'Column Selector' }
   ];
 
   const renderWidget = ({ id, type, x = 0, y = 0, height, width }) => {
@@ -175,7 +201,6 @@ const Dashboard = () => {
 
     switch (type) {
       case 'summaryCards':
-        console.log('Dashboard: Rendering summaryCards', { isDarkMode });
         return (
           <Widget title="Summary Overview" {...commonProps}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 h-full overflow-auto">
@@ -187,41 +212,24 @@ const Dashboard = () => {
           </Widget>
         );
       case 'flightStatusChart':
-        console.log('Dashboard: Rendering flightStatusChart', { isDarkMode });
         return <Widget title="Flight Status" {...commonProps}><FlightStatusChart isDarkMode={isDarkMode} /></Widget>;
       case 'aircraftStatusChart':
-        console.log('Dashboard: Rendering aircraftStatusChart', { isDarkMode });
         return <Widget title="Aircraft Status" {...commonProps}><AircraftStatusChart isDarkMode={isDarkMode} /></Widget>;
       case 'alerts':
-        console.log('Dashboard: Rendering alerts', { isDarkMode });
         return <Widget title="Recent Alerts" {...commonProps}><AlertsList alerts={alerts} isDarkMode={isDarkMode} /></Widget>;
       case 'flightSchedule':
-        console.log('Dashboard: Rendering flightSchedule', { isDarkMode });
-        return (
-          <Widget title="Flight Schedule" {...commonProps}>
-            <FlightSchedule isDarkMode={isDarkMode} />
-          </Widget>
-        );
+        return <Widget title="Flight Schedule" {...commonProps}><FlightSchedule isDarkMode={isDarkMode} /></Widget>;
       case 'mapView':
-        console.log('Dashboard: Rendering mapView', { isDarkMode });
-        return (
-          <Widget title="Live Flight Map" {...commonProps}>
-            <div style={{ height: '100%', width: '100%', minHeight: '400px', position: 'relative' }}>
-              <MapView isDarkMode={isDarkMode} setSelectedFlight={setSelectedFlight} />
-            </div>
-          </Widget>
-        );
+        return <Widget title="Live Flight Map" {...commonProps}><div style={{ height: '100%', width: '100%', minHeight: '400px', position: 'relative' }}><MapView isDarkMode={isDarkMode} setSelectedFlight={setSelectedFlight} /></div></Widget>;
+      case 'columnSelector':
+        return <Widget title="Column Selector" {...commonProps}><ColumnSelectorWidget columns={allColumns} selectedColumns={selectedColumns} setSelectedColumns={setSelectedColumns} /></Widget>;
       default:
-        console.log('Dashboard: Rendering unknown widget', { type, isDarkMode });
         return <Widget title="Unknown Widget" {...commonProps}><div className="text-red-500">Invalid widget type: {type}</div></Widget>;
     }
   };
 
   return (
-    <div
-      className={`bg-gray-100 dark:bg-gray-900 transition-all duration-300 flex flex-col min-h-screen`}
-      data-theme={isDarkMode ? 'dark' : 'light'}
-    >
+    <div className={`bg-gray-100 dark:bg-gray-900 transition-all duration-300 flex flex-col min-h-screen`} data-theme={isDarkMode ? 'dark' : 'light'}>
       <div className="px-4 sm:px-6 lg:px-8 pt-16">
         <header className="py-4 flex justify-between items-center">
           <div>
@@ -243,11 +251,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <button
-        onClick={() => setIsAddWidgetOpen(true)}
-        className="fixed bottom-6 right-6 p-4 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-500 transition-all transform hover:scale-110 z-50"
-        title="Add Widget"
-      >
+      <button onClick={() => setIsAddWidgetOpen(true)} className="fixed bottom-6 right-6 p-4 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-500 transition-all transform hover:scale-110 z-50" title="Add Widget">
         <Plus size={24} />
       </button>
 
